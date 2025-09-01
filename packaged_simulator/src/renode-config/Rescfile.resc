@@ -1,0 +1,28 @@
+using sysbus
+mach create 
+machine LoadPlatformDescription $ORIGIN/Replfile.repl
+# Set variables and load binaries
+$dtb?=$ORIGIN/hpm-riscv.dtb
+$dtbaddr?=0x0ffff000
+$bin?=$ORIGIN/com_obc_cants_prints_off.elf
+sysbus LoadELF $bin
+sysbus LoadBinary $dtb $dtbaddr
+sysbus.cpu SetRegisterUnsafe 11 $dtbaddr
+
+# Create CAN hubs
+emulation CreateCANHub "canHub0"
+emulation CreateCANHub "canHub1"
+
+# Connect CAN peripherals to their respective hubs
+connector Connect fdcan0 canHub0
+connector Connect fdcan1 canHub1
+
+connector Connect socketcan0 canHub0
+connector Connect socketcan1 canHub1
+machine StartGdbServer 3335 false
+start
+
+
+
+
+

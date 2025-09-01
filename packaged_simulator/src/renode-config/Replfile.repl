@@ -1,0 +1,65 @@
+sysbus:
+    init:
+        Tag <0xf8000000 0x4000000> "plic0"
+        Tag <0x80602000 0x1000> "lvds0"
+        Tag <0x80603000 0x1000> "lvds1"
+        Tag <0xe0000000 0x1000> "clint"
+        Tag <0x80601a00 0x100> "nvmem0"
+        Tag <0x80601b00 0x100> "nvmem1"
+        Tag <0x80601c00 0x100> "srf"
+        Tag <0xfc001600 0x100> "i2cmst0"
+        Tag <0xfc001700 0x100> "i2cmst1"
+        Tag <0xfc001800 0x100> "spi"
+        Tag <0xfc001900 0x100> "dma"
+        Tag <0x80500120 0x20> "can0"
+        Tag <0x80500140 0x20> "can1"
+        Tag <0x80500160 0x1b> "obt0"
+        Tag <0x80500100 0x10> "gpio0"
+        Tag <0x80500110 0x10> "gpio1"
+
+memory: Memory.MappedMemory @ sysbus 0x0
+    size: 0x10000000
+
+cpu: CPU.RiscV32 @sysbus
+    cpuType: "rv32imafdc_zicsr"
+    timeProvider: clint
+
+clint: IRQControllers.CoreLevelInterruptor @sysbus 0xe0000000
+    frequency: 50000000
+    [0, 1] -> cpu@[3, 7]
+
+plic: IRQControllers.PlatformLevelInterruptController @ sysbus 0xf8000000
+    0 -> cpu@11
+    numberOfSources: 31
+    numberOfContexts: 1
+    prioritiesEnabled: false
+
+uart5: UART.GaislerAPBUART @ sysbus <0xfc001000, +0x100>
+    -> plic@1
+
+uart0: UART.GaislerAPBUART @ sysbus <0xfc001100, +0x100>
+    -> plic@8
+
+uart1: UART.GaislerAPBUART @ sysbus <0xfc001200, +0x100>
+    -> plic@9
+
+uart2: UART.GaislerAPBUART @ sysbus <0xfc001300, +0x100>
+    -> plic@10
+
+uart3: UART.GaislerAPBUART @ sysbus <0xfc001400, +0x100>
+    -> plic@11
+
+uart4: UART.GaislerAPBUART @ sysbus <0xfc001500, +0x100>
+    -> plic@12
+
+fdcan0:  CAN.UT32_CAN @ sysbus <0x80500120 ,+0x20>
+    -> plic@22
+fdcan1:  CAN.UT32_CAN @ sysbus <0x80500140 ,+0x20>
+    -> plic@23
+
+
+socketcan0: CAN.SocketCANBridge @ sysbus 
+    canInterfaceName: "vcan1"
+ 
+socketcan1: CAN.SocketCANBridge @ sysbus 
+    canInterfaceName: "vcan0"

@@ -1,4 +1,4 @@
-# DSS Simulatoe
+# DSS Simulator
 
 ## Prerequisites
 - Linux
@@ -6,7 +6,16 @@
 
 ## Usage
 
-1. **Clone the repository**
-   git clone git@github.com:infiniteorbits/DSS-Simulator.git
-   cd DSS_simulator
-
+### 1. Clone the repository
+```bash
+git clone git@github.com:infiniteorbits/DSS-Simulator.git
+cd packaged_simulator
+```
+### 2. Build Image
+``` bash
+docker build -t name-of-you-image: version-of-your-image .
+```
+### 3. Run Image
+```bash
+docker run -it --cap-add=NET_ADMIN --privileged --net=host  name-of-you-image: version-of-your-image
+```

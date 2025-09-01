@@ -8,7 +8,8 @@ RUN apt-get update && apt-get install -y \
     at-spi2-core dbus-x11 \
     uml-utilities can-utils iproute2 kmod \
     python3 python3-pip \   
-   wget gnupg build-essential sudo screen \
+    wget gnupg build-essential sudo screen \
+    mono-complete \
   && rm -rf /var/lib/apt/lists/*
 
 RUN wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb \
@@ -17,15 +18,12 @@ RUN wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-p
   && apt-get update \
   && apt-get install -y dotnet-sdk-8.0 \
   && rm -rf /var/lib/apt/lists/*
-RUN RUN mkdir -p /opt/renode \
+RUN mkdir -p /app/renode \
   && wget https://dl.antmicro.com/projects/renode/builds/renode-latest.linux-portable.tar.gz -O /tmp/renode-latest.tar.gz \
-  && tar xf /tmp/renode-latest.tar.gz -C /opt/renode --strip-components=1 \
+  && tar xf /tmp/renode-latest.tar.gz -C /app/renode --strip-components=1 \
   && rm /tmp/renode-latest.tar.gz \
-  && ln -s /opt/renode/renode /usr/local/bin/renode
+  && ln -s /app/renode/renode /usr/local/bin/renode
 
-WORKDIR /app/renode
-COPY renode ./renode
-RUN cd renode && ./build.sh -c && ./build.sh --net
 WORKDIR /app
 COPY src ./src
 COPY scripts ./scripts
@@ -33,7 +31,6 @@ COPY requirements.txt ./requirements.txt
 RUN python3 -m pip install --no-cache-dir -r requirements.txt
 RUN chmod +x /app/scripts/*.sh
 
-EXPOSE 8090  9000 3335
-
+EXPOSE 8090 9000 3335
 
 CMD ["/app/scripts/launch.sh"]

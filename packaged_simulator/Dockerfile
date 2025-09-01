@@ -17,6 +17,11 @@ RUN wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-p
   && apt-get update \
   && apt-get install -y dotnet-sdk-8.0 \
   && rm -rf /var/lib/apt/lists/*
+RUN RUN mkdir -p /opt/renode \
+  && wget https://dl.antmicro.com/projects/renode/builds/renode-latest.linux-portable.tar.gz -O /tmp/renode-latest.tar.gz \
+  && tar xf /tmp/renode-latest.tar.gz -C /opt/renode --strip-components=1 \
+  && rm /tmp/renode-latest.tar.gz \
+  && ln -s /opt/renode/renode /usr/local/bin/renode
 
 WORKDIR /app/renode
 COPY renode ./renode

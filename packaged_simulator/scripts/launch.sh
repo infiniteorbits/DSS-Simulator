@@ -7,7 +7,7 @@ TM_PID=""
 SIM_PID=""
 SYSTEM_RUNNING=false
 
-SIM_BIN="/app/renode/renode"
+SIM_BIN="/app/renode/renode/output/bin/Release/Renode"
 CONFIG_FILE="/app/src/renode-config/Rescfile.resc"
 INTERFACE="vcan1"
 

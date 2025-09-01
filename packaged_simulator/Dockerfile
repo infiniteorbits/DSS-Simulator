@@ -34,3 +34,4 @@ RUN chmod +x /app/scripts/*.sh
 EXPOSE 8090 9000 3335
 
 CMD ["/app/scripts/launch.sh"]
+

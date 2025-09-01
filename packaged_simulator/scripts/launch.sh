@@ -54,9 +54,9 @@ start_services() {
     if [ "$SYSTEM_RUNNING" = false ]; then
         setup_network
         
-        run_service1 &
-        run_service2 &
-        run_service3 &
+        run_service1
+        run_service2
+        run_service3
         
         SYSTEM_RUNNING=true
         echo "System started" >/proc/1/fd/1 2>&1
@@ -65,15 +65,33 @@ start_services() {
 
 stop_services() {
     if [ "$SYSTEM_RUNNING" = true ]; then
-        [ -n "$TC_PID" ] && kill $TC_PID >/dev/null 2>&1 || true &
-        [ -n "$TM_PID" ] && kill $TM_PID >/dev/null 2>&1 || true &
-        [ -n "$SIM_PID" ] && kill $SIM_PID >/dev/null 2>&1 || true &
+        if [ -n "$TC_PID" ] && kill -0 "$TC_PID" 2>/dev/null; then
+            kill -TERM "$TC_PID" 2>/dev/null || true
+            sleep 1
+            kill -KILL "$TC_PID" 2>/dev/null || true
+        fi
         
-        pkill -f "tc_converter.py" >/dev/null 2>&1 || true &
-        pkill -f "tm_converter.py" >/dev/null 2>&1 || true &
-        pkill -f "Renode" >/dev/null 2>&1 || true &
+        if [ -n "$TM_PID" ] && kill -0 "$TM_PID" 2>/dev/null; then
+            kill -TERM "$TM_PID" 2>/dev/null || true
+            sleep 1
+            kill -KILL "$TM_PID" 2>/dev/null || true
+        fi
         
-        wait
+        if [ -n "$SIM_PID" ] && kill -0 "$SIM_PID" 2>/dev/null; then
+            kill -TERM "$SIM_PID" 2>/dev/null || true
+            sleep 1
+            kill -KILL "$SIM_PID" 2>/dev/null || true
+        fi
+        
+ 
+        pkill -f "tc_converter.py" 2>/dev/null || true
+        pkill -f "tm_converter.py" 2>/dev/null || true
+        pkill -f "renode" 2>/dev/null || true
+        
+        
+        TC_PID=""
+        TM_PID=""
+        SIM_PID=""
         
         SYSTEM_RUNNING=false
         echo "System stopped" >/proc/1/fd/1 2>&1
@@ -85,7 +103,7 @@ cleanup() {
     exit 0
 }
 
-trap cleanup SIGINT SIGTERM
+trap cleanup SIGINT SIGTERM EXIT
 
 show_menu() {
     clear
@@ -107,21 +125,19 @@ show_menu() {
     read -rp "Choice: " choice
 }
 
-main() {
-    start_services
-    
+main() {    
     while true; do
         show_menu
         case "${choice}" in
             1) 
                 start_services
                 echo "System starting..."
-                sleep 1
+                sleep 2
                 ;;
             2) 
                 stop_services
                 echo "System stopping..."
-                sleep 1
+                sleep 2
                 ;;
             3) 
                 cleanup
@@ -133,11 +149,17 @@ main() {
         esac
         
         if [ "$SYSTEM_RUNNING" = true ]; then
-            local restart_needed=false
+            restart_needed=false
             
-            [ -n "$TC_PID" ] && ! kill -0 $TC_PID 2>/dev/null && restart_needed=true
-            [ -n "$TM_PID" ] && ! kill -0 $TM_PID 2>/dev/null && restart_needed=true
-            [ -n "$SIM_PID" ] && ! kill -0 $SIM_PID 2>/dev/null && restart_needed=true
+            if [ -n "$TC_PID" ] && ! kill -0 "$TC_PID" 2>/dev/null; then
+                restart_needed=true
+            fi
+            if [ -n "$TM_PID" ] && ! kill -0 "$TM_PID" 2>/dev/null; then
+                restart_needed=true
+            fi
+            if [ -n "$SIM_PID" ] && ! kill -0 "$SIM_PID" 2>/dev/null; then
+                restart_needed=true
+            fi
             
             if [ "$restart_needed" = true ]; then
                 echo "Service died, restarting..." >/proc/1/fd/1 2>&1

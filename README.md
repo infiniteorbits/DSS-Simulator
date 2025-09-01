@@ -13,6 +13,7 @@ cd DSS-Simulator
 ```
 ### 2. Build Image
 ``` bash
+cd packaged_simulator
 docker build -t name-of-your-image: version-of-your-image .
 ```
 ### 3. Run Image

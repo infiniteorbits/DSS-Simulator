@@ -8,7 +8,7 @@
 
 ### 1. Clone the repository
 ```bash
-git clone git@github.com:infiniteorbits/DSS-Simulator.git
+git clone -b  _dev_packaged_simulator git@github.com:infiniteorbits/DSS-Simulator.git
 cd DSS-Simulator
 ```
 ### 2. Build Image
